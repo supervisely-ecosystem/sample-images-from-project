@@ -1,5 +1,5 @@
 import yaml
-from typing import List, Tuple, Optional
+from typing import Optional
 from supervisely.app.widgets import (
     Text,
     Card,
@@ -103,7 +103,10 @@ def update_custom_editor(sample_size: Optional[int] = None):
     calculate_maximum_percentage(sample_size)
     percentages = distribute_percentages(len(g.STATE.class_stats))
 
-    editor_text = "distribution:\n"
+    editor_text = (
+        f"# Total images count in sample: {g.STATE.images_in_sample}\n\n"
+        "distribution: # In percentage\n"
+    )
     for class_name, class_dict, percentage in zip(
         g.STATE.class_stats.keys(), g.STATE.class_stats.values(), percentages
     ):
@@ -149,6 +152,9 @@ def lock_settings():
 
     g.STATE.sampling_method = sampling_method
     g.STATE.sample_size = sample_size_input.get_value()
+    g.STATE.images_in_sample = round(
+        g.STATE.sample_size * g.STATE.total_images_count / 100
+    )
 
     sly.logger.info(
         f"Settings locked. Sampling method: {sampling_method}, sample size: {g.STATE.sample_size}"
@@ -161,6 +167,32 @@ def lock_settings():
         sly.logger.info(
             f"Custom method is selected. Distribution: {g.STATE.class_distribution}"
         )
+
+        total_percentage = sum(g.STATE.class_distribution.values())
+
+        # TODO: Show message if total percentage is not 100, but it's not critical.
+
+        if total_percentage > 100:
+            pass
+        elif total_percentage < 100:
+            pass
+
+        # TODO: Show message if any class percentage is more than maximum.
+
+        output.build_preview_table()
+
+    elif sampling_method == "Stratified":
+        total_class_images = sum(
+            [class_dict["total"] for class_dict in g.STATE.class_stats.values()]
+        )
+        distribution = {}
+        for class_name, class_dict in g.STATE.class_stats.items():
+            percentage = round(class_dict["total"] * 100 / total_class_images)
+            distribution[class_name] = percentage
+
+        g.STATE.class_distribution = distribution
+
+        output.build_preview_table()
 
     unlock_settings_button.show()
 
@@ -176,6 +208,8 @@ def unlock_settings():
     g.STATE.sampling_method = None
     g.STATE.sample_size = None
     g.STATE.class_distribution = None
+
+    output.clear_preview_table()
 
     unlock_settings_button.hide()
 
