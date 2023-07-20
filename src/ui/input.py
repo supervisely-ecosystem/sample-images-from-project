@@ -3,134 +3,94 @@ import os
 import supervisely as sly
 from supervisely.app.widgets import (
     Card,
-    SelectDataset,
+    SelectProject,
     Button,
     Container,
-    DatasetThumbnail,
+    ProjectThumbnail,
     Text,
 )
 
 import src.globals as g
 import src.ui.settings as settings
 
-dataset_thumbnail = DatasetThumbnail()
-dataset_thumbnail.hide()
+select_project = SelectProject(workspace_id=g.STATE.selected_workspace)
+
+project_thumbnail = ProjectThumbnail()
+project_thumbnail.hide()
 
 load_button = Button("Load data")
-change_dataset_button = Button("Change dataset", icon="zmdi zmdi-lock-open")
-change_dataset_button.hide()
+change_project_button = Button("Change project", icon="zmdi zmdi-lock-open")
+change_project_button.hide()
 
-no_dataset_message = Text(
-    "Please, select a dataset before clicking the button.",
+no_project_message = Text(
+    "Please, select a project before clicking the button.",
     status="warning",
 )
-no_dataset_message.hide()
+no_project_message.hide()
 
-if g.STATE.selected_dataset and g.STATE.selected_project:
-    # If the app was loaded from a dataset.
-    sly.logger.debug("App was loaded from a dataset.")
+if g.STATE.selected_project:
+    # If the app was loaded from a project.
+    sly.logger.debug("App was loaded from a project.")
 
-    # Stting values to the widgets from environment variables.
-    select_dataset = SelectDataset(
-        default_id=g.STATE.selected_dataset, project_id=g.STATE.selected_project
-    )
-
-    # Hiding unnecessary widgets.
-    select_dataset.hide()
+    select_project.hide()
     load_button.hide()
 
-    # Creating a dataset thumbnail to show.
-    dataset_thumbnail.set(
-        g.api.project.get_info_by_id(g.STATE.selected_project),
-        g.api.dataset.get_info_by_id(g.STATE.selected_dataset),
-    )
-    dataset_thumbnail.show()
+    g.STATE.get_project_info()
+    project_thumbnail.set(g.STATE.project_info)
+    project_thumbnail.show()
 
     settings.card.unlock()
     settings.card.uncollapse()
-elif g.STATE.selected_project:
-    # If the app was loaded from a project: showing the dataset selector in compact mode.
-    sly.logger.debug("App was loaded from a project.")
-
-    select_dataset = SelectDataset(
-        project_id=g.STATE.selected_project, compact=True, show_label=False
-    )
 else:
-    # If the app was loaded from ecosystem: showing the dataset selector in full mode.
     sly.logger.debug("App was loaded from ecosystem.")
-
-    select_dataset = SelectDataset()
 
 # Input card with all widgets.
 card = Card(
-    "1️⃣ Input dataset",
-    "Images from the selected dataset will be loaded.",
+    "1️⃣ Input project",
+    "Images from the selected project will be loaded.",
     content=Container(
         widgets=[
-            dataset_thumbnail,
-            select_dataset,
+            project_thumbnail,
+            select_project,
             load_button,
-            no_dataset_message,
+            no_project_message,
         ]
     ),
-    content_top_right=change_dataset_button,
+    content_top_right=change_project_button,
     collapsable=True,
 )
 
 
 @load_button.click
-def load_dataset():
-    """Handles the load button click event. Reading values from the SelectDataset widget,
+def load_project():
+    """Handles the load button click event. Reading values from the SelectProject widget,
     calling the API to get project, workspace and team ids (if they're not set),
     building the table with images and unlocking the rotator and output cards.
     """
-    # Reading the dataset id from SelectDataset widget.
-    dataset_id = select_dataset.get_selected_id()
+    project_id = select_project.get_selected_id()
 
-    if not dataset_id:
-        # If the dataset id is empty, showing the warning message.
-        no_dataset_message.show()
+    if not project_id:
+        # If the project id is empty, showing the warning message.
+        no_project_message.show()
         return
 
-    # Hide the warning message if dataset was selected.
-    no_dataset_message.hide()
+    # Hide the warning message if project was selected.
+    no_project_message.hide()
 
     # Changing the values of the global variables to access them from other modules.
-    g.STATE.selected_dataset = dataset_id
+    g.STATE.selected_project = project_id
 
-    # Cleaning the static directory when the new dataset is selected.
-    # * If needed, this code can be securely removed.
-    clean_static_dir()
-
-    # Disabling the dataset selector and the load button.
-    select_dataset.disable()
+    # Disabling the project selector and the load button.
+    select_project.disable()
     load_button.hide()
 
-    # Showing the lock checkbox for unlocking the dataset selector and button.
-    change_dataset_button.show()
+    # Showing the lock checkbox for unlocking the project selector and button.
+    change_project_button.show()
 
-    sly.logger.debug(
-        f"Calling API with dataset ID {dataset_id} to get project, workspace and team IDs."
-    )
+    g.STATE.get_project_info()
 
-    g.STATE.selected_project = g.api.dataset.get_info_by_id(dataset_id).project_id
-    g.STATE.selected_workspace = g.api.project.get_info_by_id(
-        g.STATE.selected_project
-    ).workspace_id
-    g.STATE.selected_team = g.api.workspace.get_info_by_id(
-        g.STATE.selected_workspace
-    ).team_id
-
-    sly.logger.debug(
-        f"Recived IDs from the API. Selected team: {g.STATE.selected_team}, "
-        f"selected workspace: {g.STATE.selected_workspace}, selected project: {g.STATE.selected_project}"
-    )
-
-    dataset_thumbnail.set(
-        g.api.project.get_info_by_id(g.STATE.selected_project),
-        g.api.dataset.get_info_by_id(g.STATE.selected_dataset),
-    )
-    dataset_thumbnail.show()
+    project_thumbnail.set(g.STATE.project_info)
+    project_thumbnail.show()
 
     settings.card.unlock()
     settings.card.uncollapse()
@@ -150,9 +110,9 @@ def clean_static_dir():
         os.remove(os.path.join(g.STATIC_DIR, static_file))
 
 
-@change_dataset_button.click
+@change_project_button.click
 def handle_input():
     card.unlock()
-    select_dataset.enable()
+    select_project.enable()
     load_button.show()
-    change_dataset_button.hide()
+    change_project_button.hide()

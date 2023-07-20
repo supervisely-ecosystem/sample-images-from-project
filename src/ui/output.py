@@ -1,5 +1,5 @@
 from typing import Optional
-
+from datetime import datetime
 import supervisely as sly
 
 from supervisely.app.widgets import (
@@ -18,8 +18,8 @@ destination = DestinationProject(
     workspace_id=g.STATE.selected_workspace, project_type="images"
 )
 
-start_button = Button("Start button")
-stop_button = Button("Stop button", button_type="danger", icon="zmdi zmdi-stop")
+start_button = Button("Start sampling", icon="zmdi zmdi-play")
+stop_button = Button("Stop sampling", button_type="danger", icon="zmdi zmdi-stop")
 stop_button.hide()
 
 progress = Progress()
@@ -33,7 +33,7 @@ project_thumbnail.hide()
 
 card = Card(
     title="3️⃣ Output",
-    description="PLACEHOLDER: Input description here.",
+    description="Choose the destination for the sample and start the generation.",
     content=Container(
         [
             destination,
@@ -44,16 +44,15 @@ card = Card(
         ]
     ),
     content_top_right=stop_button,
-    lock_message="Save settings on step 2️⃣.",
+    lock_message="Lock settings on step 2️⃣.",
     collapsable=True,
 )
-# * Card can be locked and collapsed by default and unlocked and expanded by some conditions in previous steps.
-# card.lock()
-# card.collapse()
+card.lock()
+card.collapse()
 
 
 @start_button.click
-def generate():
+def start_sampling():
     project_id = destination.get_selected_project_id()
     dataset_id = destination.get_selected_dataset_id()
 
@@ -84,7 +83,7 @@ def generate():
 
     with progress(message="Generating images...", total=progress_total) as pbar:
         for i in range(progress_total):
-            if not g.STATE.continue_working:
+            if not g.STATE.continue_sampling:
                 # * Checking the global variable to stop working (if stop button was clicked).
 
                 sly.logger.debug("Stop button was clicked, stopping generation.")
@@ -96,14 +95,13 @@ def generate():
 
             pbar.update(1)
 
-    if g.STATE.continue_working:
-        # * Input your texts here if the stop button was NOT clicked.
+    if g.STATE.continue_sampling:
+        # ! Input your texts here if the stop button was NOT clicked.
         result_text.text = "Successfully finished."
         result_text.status = "success"
 
     else:
-        # * Input your texts here if the stop button was clicked.
-
+        # ! Input your texts here if the stop button was clicked.
         result_text.text = "Was stopped by user."
         result_text.status = "warning"
 
@@ -114,23 +112,22 @@ def generate():
     project_thumbnail.show()
 
     # * Returning button texts to it's default state.
-    start_button.text = "Start button"
+    start_button.text = "Start sampling"
     stop_button.hide()
     stop_button.loading = False
-    stop_button.text = "Stop button"
+    stop_button.text = "Stop sampling"
 
 
 @stop_button.click
 def stop_generation():
     stop_button.text = "Stopping..."
     stop_button.loading = True
-    g.STATE.continue_working = False
+    g.STATE.continue_sampling = False
 
 
 def create_project(project_name: Optional[str]) -> int:
     if not project_name:
-        # * If the project name wasn't specified by user in widget, it should be generated automatically.
-        project_name = "PLACEHOLDER FOR PROJECT NAME"
+        project_name = f"{g.STATE.project_info.name} (sample)"
 
     project = g.api.project.create(
         g.STATE.selected_workspace, project_name, change_name_if_conflict=True
@@ -140,8 +137,7 @@ def create_project(project_name: Optional[str]) -> int:
 
 def create_dataset(project_id: int, dataset_name: Optional[str]) -> int:
     if not dataset_name:
-        # * If the dataset name wasn't specified by user in widget, it should be generated automatically.
-        dataset_name = "PLACEHOLDER FOR DATASET NAME "
+        dataset_name = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (sample)"
 
     dataset = g.api.dataset.create(
         project_id, dataset_name, change_name_if_conflict=True
