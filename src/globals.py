@@ -37,8 +37,6 @@ class State:
 
         self.images_by_class = defaultdict(list)
 
-        self.skipped_images = []
-
     def get_project_info(self):
         self.project_info = api.project.get_info_by_id(self.selected_project)
         self.total_images_count = api.project.get_images_count(self.selected_project)

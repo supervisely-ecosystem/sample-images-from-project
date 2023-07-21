@@ -150,6 +150,9 @@ def lock_settings():
         no_method_message.show()
         return
 
+    output.total_percentage_text.hide()
+    output.bad_distribution_text.hide()
+
     g.STATE.sampling_method = sampling_method
     g.STATE.sample_size = sample_size_input.get_value()
     g.STATE.images_in_sample = round(
@@ -168,16 +171,38 @@ def lock_settings():
             f"Custom method is selected. Distribution: {g.STATE.class_distribution}"
         )
 
+        distribution_changed = False
+        for class_name, class_distribution in g.STATE.class_distribution.items():
+            if (
+                class_distribution
+                > g.STATE.class_stats[class_name]["maximum_percentage"]
+            ):
+                g.STATE.class_distribution[class_name] = g.STATE.class_stats[
+                    class_name
+                ]["maximum_percentage"]
+
+                distribution_changed = True
+
+            elif class_distribution < 0:
+                g.STATE.class_distribution[class_name] = 0
+
+                distribution_changed = True
+
+        if distribution_changed:
+            output.bad_distribution_text.text = (
+                "At least one class percentage is more than maximum or less than 0. "
+                "Bad percentages was changed to maximum or 0, which can impact the sample result."
+            )
+            output.bad_distribution_text.show()
+
         total_percentage = sum(g.STATE.class_distribution.values())
 
-        # TODO: Show message if total percentage is not 100, but it's not critical.
-
-        if total_percentage > 100:
-            pass
-        elif total_percentage < 100:
-            pass
-
-        # TODO: Show message if any class percentage is more than maximum.
+        if total_percentage != 100:
+            output.total_percentage_text.text = (
+                f"Total percentage {total_percentage} specified in parameters is not 100. "
+                "The sample result may be different from the expected."
+            )
+            output.total_percentage_text.show()
 
         output.build_preview_table()
 

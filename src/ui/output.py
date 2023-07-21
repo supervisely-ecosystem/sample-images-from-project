@@ -1,4 +1,5 @@
 from typing import Optional
+from copy import deepcopy
 from datetime import datetime
 import supervisely as sly
 
@@ -26,10 +27,17 @@ preview_tooltip = Text(
     ),
     status="info",
 )
+total_percentage_text = Text(status="warning")
+total_percentage_text.hide()
+bad_distribution_text = Text(status="warning")
+bad_distribution_text.hide()
+
 preview_table_field = Field(
     title="Approximate sample distribution",
     # description="This table shows the approximate distribution of images with specific class in the sample.",
-    content=Container([preview_tooltip, preview_table]),
+    content=Container(
+        [preview_tooltip, total_percentage_text, bad_distribution_text, preview_table]
+    ),
 )
 preview_table_field.hide()
 
@@ -94,11 +102,14 @@ def clear_preview_table():
 
 def prepare_samples():
     if g.STATE.sampling_method == "Random":
-        all_images = []
-        for class_name, images in g.STATE.images_by_class.items():
-            all_images.extend(images)
+        # Making list of unique images.
+        images = []
+        for image_datas in g.STATE.images_by_class.values():
+            for image_data in image_datas:
+                if image_data not in images:
+                    images.append(image_data)
 
-        samples = sample(all_images, g.STATE.images_in_sample)
+        samples = sample(images, g.STATE.images_in_sample)
 
         sly.logger.debug(
             f"Random method is selected, {len(samples)} random images was sampled."
@@ -107,17 +118,18 @@ def prepare_samples():
         return samples
 
     samples = []
-    for class_name, percentage in g.STATE.class_distribution.items():
+    class_distribution = deepcopy(g.STATE.class_distribution)
+    for class_name, percentage in class_distribution.items():
         images_number = round(g.STATE.images_in_sample * percentage / 100)
         for _ in range(images_number):
-            image = choice(g.STATE.images_by_class[class_name])
+            image = choice(class_distribution[class_name])
+            class_distribution[class_name].remove(image)
             if image not in samples:
                 samples.append(image)
             else:
                 sly.logger.debug(
-                    f"Image {image.name} was skipped because of duplication."
+                    f"Image {image.name} was already sampled from another class and was skipped."
                 )
-                g.STATE.skipped_images.append(image)
 
     sly.logger.debug(
         f"Stratified or Custom method is selected, {len(samples)} images was sampled."
@@ -131,7 +143,14 @@ def start_sampling():
     samples = prepare_samples()
 
     if not samples:
-        # TODO: add error message
+        sly.app.show_dialog(
+            title="Can't sample images",
+            description=(
+                "The app could not sample images from the project with the specified parameters. "
+                "Please, ensure that project has enough images and the parameters are correct."
+            ),
+            status="error",
+        )
         return
 
     project_id = destination.get_selected_project_id()
@@ -159,10 +178,10 @@ def start_sampling():
 
     progress.show()
 
-    with progress(message="Uploading images...", total=len(samples)) as pbar:
+    with progress(message="Sampling images...", total=len(samples)) as pbar:
         for batched_samples in sly.batched(samples):
             if not g.STATE.continue_sampling:
-                sly.logger.debug("Stop button was clicked, stopping generation.")
+                sly.logger.debug("Stop button was clicked, stopping sampling...")
                 break
 
             uploaded_ids = g.api.image.upload_ids(
@@ -177,10 +196,12 @@ def start_sampling():
                 anns=[_.ann for _ in batched_samples],
             )
 
-            sly.logger.info(f"Uploaded {len(batched_samples)} images.")
+            sly.logger.info(f"Uploaded batch of {len(batched_samples)} images.")
             pbar.update(len(batched_samples))
 
-    sly.logger.info("Sampling is finished.")
+    sly.logger.info(
+        f"Sampling is finished. Uploaded {len(samples)} images to dataset with ID {dataset_id}."
+    )
 
     if g.STATE.continue_sampling:
         result_text.text = "Successfully sampled images."
