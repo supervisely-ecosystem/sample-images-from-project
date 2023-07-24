@@ -118,12 +118,12 @@ def prepare_samples():
         return samples
 
     samples = []
-    class_distribution = deepcopy(g.STATE.class_distribution)
-    for class_name, percentage in class_distribution.items():
+    images_by_class = deepcopy(g.STATE.images_by_class)
+    for class_name, percentage in g.STATE.class_distribution.items():
         images_number = round(g.STATE.images_in_sample * percentage / 100)
         for _ in range(images_number):
-            image = choice(class_distribution[class_name])
-            class_distribution[class_name].remove(image)
+            image = choice(images_by_class[class_name])
+            images_by_class[class_name].remove(image)
             if image not in samples:
                 samples.append(image)
             else:
