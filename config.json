@@ -1,14 +1,10 @@
 {
   "type": "app",
   "version": "2.0.0",
-  "name": "PLACEHOLDER: Name of the application in Ecosystem",
-  "description": "PLACEHOLDER: Short description of the app in Ecosystem",
-  "docker_image": "supervisely/base-py-sdk:6.72.50 !!! CHANGE THIS FOR REQUIRED VERSION !!!",
-  "categories": [
-    "images",
-    "labeling",
-    "PLACEHOLDER: input all categories here"
-  ],
+  "name": "Sample images from project",
+  "description": "Sample images from project with different methods",
+  "docker_image": "supervisely/base-py-sdk:6.72.82",
+  "categories": ["images", "labeling"],
   "icon": "PLACEHOLDER FOR ICON (inserted by designers)",
   "icon_cover": true,
   "headless": false,
@@ -16,7 +12,6 @@
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,
   "context_menu": {
-    "target": ["images_project", "ecosystem"],
-    "context_category": "PLACEHOLDER: input context category here (right click in Ecosystem)"
+    "target": ["images_project", "ecosystem"]
   }
 }
