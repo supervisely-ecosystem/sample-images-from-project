@@ -9,6 +9,7 @@ from supervisely.app.widgets import (
     Field,
     Button,
     Container,
+    Flexbox,
 )
 
 import supervisely as sly
@@ -19,15 +20,21 @@ import src.ui.output as output
 sample_type_select = Select(
     items=[Select.Item("Percentage"), Select.Item("Number of images")]
 )
+sample_size_percentage_input = InputNumber(
+    value=10, min=1, max=100, step=1, size="medium"
+)
+sample_size_number_input = InputNumber(value=10, min=1, step=1, size="medium")
+sample_size_number_input.hide()
+
+sample_size_flexbox = Flexbox(
+    widgets=[sample_type_select, sample_size_percentage_input, sample_size_number_input]
+)
+
 sample_size_field = Field(
     title="Sample size",
     description="Select the sample size in percentage or number of images.",
-    content=sample_type_select,
+    content=sample_size_flexbox,
 )
-
-sample_size_percentage_input = InputNumber(value=10, min=1, max=100, step=1)
-sample_size_number_input = InputNumber(value=10, min=1, step=1)
-sample_size_number_input.hide()
 
 sampling_method_select = Select(
     items=[Select.Item(method) for method in g.SAMPLING_METHODS.keys()],
@@ -63,8 +70,6 @@ card = Card(
     content=Container(
         [
             sample_size_field,
-            sample_size_percentage_input,
-            sample_size_number_input,
             sampling_method_field,
             sampling_method_hint,
             no_method_message,
@@ -98,15 +103,7 @@ def sample_size_changed(sample_size):
     sampling_method = sampling_method_select.get_value()
 
     if sampling_method is not None and sampling_method == "Custom":
-        if sample_type_select.get_value() == "Percentage":
-            sample_size = sample_size_percentage_input.get_value()
-        else:
-            sample_size = int(
-                (sample_size_number_input.get_value() / g.STATE.total_images_count)
-                * 100
-            )
-            if sample_size > 100:
-                sample_size = 100
+        sample_size = get_sample_size()
 
         update_custom_editor(sample_size)
 
@@ -119,7 +116,7 @@ def update_custom_editor(sample_size: Optional[int] = None):
     lock_settings_button.loading = True
 
     if not sample_size:
-        sample_size = sample_size_percentage_input.get_value()
+        sample_size = get_sample_size()
 
     calculate_maximum_percentage(sample_size)
     percentages = distribute_percentages(len(g.STATE.class_stats))
@@ -176,14 +173,7 @@ def lock_settings():
 
     g.STATE.sampling_method = sampling_method
 
-    if sample_type_select.get_value() == "Percentage":
-        sly.logger.debug("Percentage sample size is selected.")
-        g.STATE.sample_size = sample_size_percentage_input.get_value()
-    else:
-        sly.logger.debug("Number of images sample size is selected.")
-        g.STATE.sample_size = int(
-            (sample_size_number_input.get_value() / g.STATE.total_images_count) * 100
-        )
+    g.STATE.sample_size = get_sample_size()
 
     g.STATE.images_in_sample = round(
         g.STATE.sample_size * g.STATE.total_images_count / 100
@@ -285,6 +275,18 @@ def distribute_percentages(num_parts: int):
         parts[i] += 1
 
     return parts
+
+
+def get_sample_size():
+    if sample_type_select.get_value() == "Percentage":
+        return sample_size_percentage_input.get_value()
+
+    sample_size = int(
+        (sample_size_number_input.get_value() / g.STATE.total_images_count) * 100
+    )
+
+    sample_size = sample_size if sample_size <= 100 else 100
+    return sample_size
 
 
 @sample_type_select.value_changed
