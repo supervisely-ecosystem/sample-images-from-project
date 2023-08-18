@@ -36,6 +36,7 @@ class State:
         self.class_distribution = None
 
         self.images_by_class = defaultdict(list)
+        self.images = list()
 
     def get_project_info(self):
         self.project_info = api.project.get_info_by_id(self.selected_project)
@@ -45,6 +46,12 @@ class State:
         )
         self.get_project_stats()
         self.get_images_by_class()
+
+        if not self.images_by_class:
+            sly.logger.info(
+                f'Project "{self.project_info.name}" has no classes, will run retrieving function again.'
+            )
+            self.get_images_by_class(no_class=True)
 
     def get_project_stats(self):
         project_stats = api.project.get_stats(self.selected_project)["objects"]["items"]
@@ -57,7 +64,7 @@ class State:
         sly.logger.debug(f"Following class stats was saved in the state: {class_stats}")
         self.class_stats = class_stats
 
-    def get_images_by_class(self):
+    def get_images_by_class(self, no_class: bool = False):
         dataset_ids = [
             dataset.id for dataset in api.dataset.get_list(self.selected_project)
         ]
@@ -78,14 +85,21 @@ class State:
             for image_id, image_name, image_meta, ann in zip(
                 image_ids, image_names, image_metas, anns
             ):
-                for label in ann.labels:
-                    self.images_by_class[label.obj_class.name].append(
-                        ImageData(image_id, image_name, image_meta, ann)
-                    )
-
-        sly.logger.debug(
-            f"Saved {len(self.images_by_class)} (class_name, [(image_id, image_name)]) images in the state."
-        )
+                if no_class:
+                    self.images.append(ImageData(image_id, image_name, image_meta, ann))
+                else:
+                    for label in ann.labels:
+                        self.images_by_class[label.obj_class.name].append(
+                            ImageData(image_id, image_name, image_meta, ann)
+                        )
+        if not no_class:
+            sly.logger.debug(
+                f"Saved {len(self.images_by_class)} (class_name, [(image_id, image_name)]) images in the state."
+            )
+        else:
+            sly.logger.debug(
+                f"Saved {len(self.images)} images in the state, since the project has no classes."
+            )
 
 
 STATE = State()

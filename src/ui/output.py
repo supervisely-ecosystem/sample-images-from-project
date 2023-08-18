@@ -104,8 +104,14 @@ def prepare_samples():
     if g.STATE.sampling_method == "Random":
         # Making list of unique images.
         images = []
-        for image_datas in g.STATE.images_by_class.values():
-            for image_data in image_datas:
+
+        if g.STATE.images_by_class:
+            for image_datas in g.STATE.images_by_class.values():
+                for image_data in image_datas:
+                    if image_data not in images:
+                        images.append(image_data)
+        else:
+            for image_data in g.STATE.images:
                 if image_data not in images:
                     images.append(image_data)
 

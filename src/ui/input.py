@@ -28,6 +28,15 @@ no_project_message = Text(
 )
 no_project_message.hide()
 
+
+def no_class_handler():
+    if not g.STATE.class_stats:
+        settings.sampling_method_field.hide()
+        settings.sampling_method_select.set_value("Random")
+    else:
+        settings.sampling_method_field.show()
+
+
 if g.STATE.selected_project:
     # If the app was loaded from a project.
     sly.logger.debug("App was loaded from a project.")
@@ -36,6 +45,7 @@ if g.STATE.selected_project:
     load_button.hide()
 
     g.STATE.get_project_info()
+    no_class_handler()
     project_thumbnail.set(g.STATE.project_info)
     project_thumbnail.show()
 
@@ -88,6 +98,7 @@ def load_project():
     change_project_button.show()
 
     g.STATE.get_project_info()
+    no_class_handler()
 
     project_thumbnail.set(g.STATE.project_info)
     project_thumbnail.show()
