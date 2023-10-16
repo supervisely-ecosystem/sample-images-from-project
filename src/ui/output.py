@@ -190,12 +190,28 @@ def start_sampling():
                 sly.logger.debug("Stop button was clicked, stopping sampling...")
                 break
 
-            uploaded_ids = g.api.image.upload_ids(
-                dataset_id=dataset_id,
-                names=[_.name for _ in batched_samples],
-                ids=[_.id for _ in batched_samples],
-                metas=[_.meta for _ in batched_samples],
+            names = [_.name for _ in batched_samples]
+            ids = [_.id for _ in batched_samples]
+            metas = [_.meta for _ in batched_samples]
+
+            sly.logger.debug(
+                f"Uploading batch of {len(batched_samples)} images."
+                f"Project ID: {project_id}, dataset ID: {dataset_id}."
+                f"Image names: {names}, image IDs: {ids}, image metas: {metas}."
             )
+            try:
+                uploaded_ids = g.api.image.upload_ids(
+                    dataset_id=dataset_id,
+                    names=names,
+                    ids=ids,
+                    metas=metas,
+                )
+            except Exception as e:
+                sly.logger.error(f"Error while uploading images: {e}")
+                sly.logger.warning("Stopping app...")
+                from src.main import app
+
+                app.stop()
 
             g.api.annotation.upload_anns(
                 img_ids=[_.id for _ in uploaded_ids],
