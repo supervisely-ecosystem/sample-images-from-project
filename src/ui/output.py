@@ -193,6 +193,7 @@ def start_sampling():
             names = [_.name for _ in batched_samples]
             ids = [_.id for _ in batched_samples]
             metas = [_.meta for _ in batched_samples]
+            infos = [_.info for _ in batched_samples]
 
             sly.logger.debug(f"Uploading batch of {len(batched_samples)} images.")
             sly.logger.debug(f"Project ID: {project_id}, dataset ID: {dataset_id}.")
@@ -200,24 +201,17 @@ def start_sampling():
             sly.logger.debug(f"Image IDs: {ids}.")
             sly.logger.debug(f"Image metas: {metas}.")
 
-            try:
-                uploaded_ids = g.api.image.upload_ids(
-                    dataset_id=dataset_id,
-                    names=names,
-                    ids=ids,
-                    metas=metas,
-                )
-                g.api.annotation.upload_anns(
-                    img_ids=[_.id for _ in uploaded_ids],
-                    anns=[_.ann for _ in batched_samples],
-                )
-            except Exception as e:
-                sly.logger.error(f"Error while uploading images: {e}")
-                sly.logger.debug("Will try to retrieve image info by ID...")
-                problem_id = int(e)
-                problem_info = g.api.image.get_info_by_id(problem_id)
-
-                sly.logger.debug(f"Problem image info: {problem_info}.")
+            uploaded_ids = g.api.image.upload_ids(
+                dataset_id=dataset_id,
+                names=names,
+                ids=ids,
+                metas=metas,
+                infos=infos,
+            )
+            g.api.annotation.upload_anns(
+                img_ids=[_.id for _ in uploaded_ids],
+                anns=[_.ann for _ in batched_samples],
+            )
 
             sly.logger.info(f"Uploaded batch of {len(batched_samples)} images.")
             pbar.update(len(batched_samples))

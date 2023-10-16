@@ -16,7 +16,7 @@ SAMPLING_METHODS = {
     "Stratified": "Images will be selected from each class proportionally to the number of images in the class.",
     "Custom": "You can manually set distribution of images for each class.",
 }
-ImageData = namedtuple("ImageData", ["id", "name", "meta", "ann"])
+ImageData = namedtuple("ImageData", ["id", "name", "meta", "ann", "info"])
 
 
 class State:
@@ -72,8 +72,8 @@ class State:
         for dataset_id in dataset_ids:
             image_infos = api.image.get_list(dataset_id)
             image_ids = [image_info.id for image_info in image_infos]
-            image_names = [image_info.name for image_info in image_infos]
-            image_metas = [image_info.meta for image_info in image_infos]
+            # image_names = [image_info.name for image_info in image_infos]
+            # image_metas = [image_info.meta for image_info in image_infos]
 
             anns = [
                 sly.Annotation.from_json(ann_json, self.project_meta)
@@ -82,15 +82,27 @@ class State:
                 )
             ]
 
-            for image_id, image_name, image_meta, ann in zip(
-                image_ids, image_names, image_metas, anns
-            ):
+            for image_info, ann in zip(image_infos, anns):
                 if no_class:
-                    self.images.append(ImageData(image_id, image_name, image_meta, ann))
+                    self.images.append(
+                        ImageData(
+                            image_info.id,
+                            image_info.name,
+                            image_info.meta,
+                            ann,
+                            image_info,
+                        )
+                    )
                 else:
                     for label in ann.labels:
                         self.images_by_class[label.obj_class.name].append(
-                            ImageData(image_id, image_name, image_meta, ann)
+                            ImageData(
+                                image_info.id,
+                                image_info.name,
+                                image_info.meta,
+                                ann,
+                                image_info,
+                            )
                         )
         if not no_class:
             sly.logger.debug(
