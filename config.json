@@ -5,10 +5,10 @@
   "description": "Sample images from project with different methods",
   "docker_image": "supervisely/base-py-sdk:6.72.152",
   "categories": ["images", "labeling"],
-  "icon": "PLACEHOLDER FOR ICON (inserted by designers)",
+  "icon": "https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275804056-4d281df9-a8a8-412c-bef4-26769bf91b94.png",
   "icon_cover": true,
   "headless": false,
-  "poster": "PLACEHOLDER FOR POSTER (inserted by designers)",
+  "poster": "https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275804519-dab5aad7-331d-45f3-9c79-cf4d7b677e00.png",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,
   "context_menu": {
