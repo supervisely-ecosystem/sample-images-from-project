@@ -50,8 +50,8 @@ sampling_method_hint.hide()
 no_method_message = Text("Sampling method must be selected.", status="warning")
 no_method_message.hide()
 
-lock_settings_button = Button("Lock settings", icon="zmdi zmdi-lock")
-unlock_settings_button = Button("Unlock settings", icon="zmdi zmdi-lock-open")
+lock_settings_button = Button("Save settings", icon="zmdi zmdi-lock")
+unlock_settings_button = Button("Change settings", icon="zmdi zmdi-lock-open")
 unlock_settings_button.hide()
 
 

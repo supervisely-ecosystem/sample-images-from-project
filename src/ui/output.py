@@ -15,6 +15,7 @@ from supervisely.app.widgets import (
     Text,
     Table,
     Field,
+    Flexbox,
 )
 
 import src.globals as g
@@ -49,6 +50,8 @@ start_button = Button("Start sampling", icon="zmdi zmdi-play")
 stop_button = Button("Stop sampling", button_type="danger", icon="zmdi zmdi-stop")
 stop_button.hide()
 
+buttons_flexbox = Flexbox([start_button, stop_button])
+
 progress = Progress()
 progress.hide()
 
@@ -65,14 +68,13 @@ card = Card(
         [
             preview_table_field,
             destination,
-            start_button,
+            buttons_flexbox,
             progress,
             result_text,
             project_thumbnail,
         ]
     ),
-    content_top_right=stop_button,
-    lock_message="Lock settings on step 2️⃣.",
+    lock_message="Save settings on step 2️⃣.",
     collapsable=True,
 )
 card.lock()
@@ -138,12 +140,16 @@ def prepare_samples():
         images_number = round(g.STATE.images_in_sample * percentage / 100)
         for _ in range(images_number):
             image = choice(images_by_class[class_name])
+
+            image_name = image.info.name
+            samples_names = [_.info.name for _ in samples]
+
             images_by_class[class_name].remove(image)
-            if image not in samples:
+            if image_name not in samples_names:
                 samples.append(image)
             else:
                 sly.logger.debug(
-                    f"Image {image.name} was already sampled from another class and was skipped."
+                    f"Image {image.info.name} was already sampled from another class and was skipped."
                 )
 
     sly.logger.debug(
