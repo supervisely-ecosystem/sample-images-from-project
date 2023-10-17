@@ -251,6 +251,12 @@ def start_sampling():
     stop_button.loading = False
     stop_button.text = "Stop sampling"
 
+    from src.main import app
+
+    sly.logger.info("The application will be stopped.")
+
+    app.stop()
+
 
 @stop_button.click
 def stop_generation():
