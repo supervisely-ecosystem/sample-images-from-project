@@ -142,6 +142,8 @@ Now press the `Start sampling` button and wait for the application to finish. Yo
 
 After the application finishes, you will see the result project widget, which you can use to open the project.
 
+![result-project](result-project.png)
+
 ## Acknowledgement
 
 - [Stratified sampling](https://en.wikipedia.org/wiki/Stratified_sampling)
