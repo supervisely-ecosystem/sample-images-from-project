@@ -1,7 +1,7 @@
 <div align="center" markdown>
 <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275804519-dab5aad7-331d-45f3-9c79-cf4d7b677e00.png"/>
 
-# Placeholder for app short description
+# Sample images with different methods
 
 <p align="center">
   <a href="#Overview">Overview</a> •
