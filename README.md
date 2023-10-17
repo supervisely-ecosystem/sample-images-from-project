@@ -7,7 +7,7 @@
   <a href="#Overview">Overview</a> •
   <a href="#Sampling-methods">Sampling methods</a> •
   <a href="#How-To-Run">How To Run</a> •
-  <a htef="#Creating-samples">Creating samples</a> •
+  <a href="#Sampling">Sampling</a> •
   <a href="#Acknowledgement">Acknowledgement</a>
 </p>
 
@@ -62,7 +62,7 @@ The application can be launch from two context menus: Images Project and the Eco
 
 **Step 3:** Press the `Run` button.
 
-## Creating samples
+## Sampling
 
 **Step 1️:** Select the input project.
 
