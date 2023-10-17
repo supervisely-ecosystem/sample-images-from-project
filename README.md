@@ -34,7 +34,7 @@ The application supports three sampling methods, but strarified and custom metho
 
 3. **Custom method:** when using the custom method, you can specify the distribution of classes in the sample. For example, if you have a project with 100 images, 50 of which are cats and 50 are dogs, and you need to create a sample of 10 images, where 8 of them are cats and 2 are dogs, you need to specify the corresponding distribution: 80% for images with cats and 20% for images with dogs.
 
-Detailed iformation about all methods you can find in the next section.
+Detailed iformation about all methods you can find in the [Sampling](#Sampling) section.
 
 ## How To Run
 
