@@ -142,7 +142,7 @@ Now press the `Start sampling` button and wait for the application to finish. Yo
 
 After the application finishes, you will see the result project widget, which you can use to open the project.
 
-![result-project](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852661-036d1373-7b67-4d58-9b41-e23c31636894.pngg)
+![result-project](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852661-036d1373-7b67-4d58-9b41-e23c31636894.png)
 
 ## Acknowledgement
 
