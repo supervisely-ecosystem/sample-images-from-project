@@ -16,7 +16,7 @@ SAMPLING_METHODS = {
     "Stratified": "Images will be selected from each class proportionally to the number of images in the class.",
     "Custom": "You can manually set distribution of images for each class.",
 }
-ImageData = namedtuple("ImageData", ["id", "name", "meta", "ann", "info"])
+ImageData = namedtuple("ImageData", ["info", "ann"])
 
 
 class State:
@@ -71,39 +71,23 @@ class State:
 
         for dataset_id in dataset_ids:
             image_infos = api.image.get_list(dataset_id)
-            image_ids = [image_info.id for image_info in image_infos]
-            # image_names = [image_info.name for image_info in image_infos]
-            # image_metas = [image_info.meta for image_info in image_infos]
 
             anns = [
                 sly.Annotation.from_json(ann_json, self.project_meta)
                 for ann_json in api.annotation.download_json_batch(
-                    dataset_id, image_ids
+                    dataset_id, [image_info.id for image_info in image_infos]
                 )
             ]
 
             for image_info, ann in zip(image_infos, anns):
+                image_data = ImageData(image_info, ann)
+
                 if no_class:
-                    self.images.append(
-                        ImageData(
-                            image_info.id,
-                            image_info.name,
-                            image_info.meta,
-                            ann,
-                            image_info,
-                        )
-                    )
+                    self.images.append(image_data)
                 else:
                     for label in ann.labels:
-                        self.images_by_class[label.obj_class.name].append(
-                            ImageData(
-                                image_info.id,
-                                image_info.name,
-                                image_info.meta,
-                                ann,
-                                image_info,
-                            )
-                        )
+                        self.images_by_class[label.obj_class.name].append(image_data)
+
         if not no_class:
             sly.logger.debug(
                 f"Saved {len(self.images_by_class)} (class_name, [(image_id, image_name)]) images in the state."

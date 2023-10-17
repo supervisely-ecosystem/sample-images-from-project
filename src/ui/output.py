@@ -108,14 +108,23 @@ def prepare_samples():
         if g.STATE.images_by_class:
             for image_datas in g.STATE.images_by_class.values():
                 for image_data in image_datas:
-                    if image_data not in images:
+                    image_name = image_data.info.name
+                    images_names = [_.info.name for _ in images]
+                    if image_name not in images_names:
                         images.append(image_data)
         else:
             for image_data in g.STATE.images:
                 if image_data not in images:
                     images.append(image_data)
-
-        samples = sample(images, g.STATE.images_in_sample)
+        if len(images) <= g.STATE.images_in_sample:
+            sly.logger.warning(
+                "Filtered images count is less than sample size. "
+                f"Number of filtered images: {len(images)}, sample size: {g.STATE.images_in_sample}. "
+                "This usually happens when the project contains same images in different datasets. "
+            )
+            samples = images
+        else:
+            samples = sample(images, g.STATE.images_in_sample)
 
         sly.logger.debug(
             f"Random method is selected, {len(samples)} random images was sampled."
@@ -190,16 +199,15 @@ def start_sampling():
                 sly.logger.debug("Stop button was clicked, stopping sampling...")
                 break
 
-            names = [_.name for _ in batched_samples]
-            ids = [_.id for _ in batched_samples]
-            metas = [_.meta for _ in batched_samples]
             infos = [_.info for _ in batched_samples]
+            anns = [_.ann for _ in batched_samples]
+            names = [_.name for _ in infos]
+            ids = [_.id for _ in infos]
+            metas = [_.meta for _ in infos]
 
-            sly.logger.debug(f"Uploading batch of {len(batched_samples)} images.")
-            sly.logger.debug(f"Project ID: {project_id}, dataset ID: {dataset_id}.")
-            sly.logger.debug(f"Image names: {names}.")
-            sly.logger.debug(f"Image IDs: {ids}.")
-            sly.logger.debug(f"Image metas: {metas}.")
+            sly.logger.debug(
+                f"Uploading batch of {len(batched_samples)} images. Image IDs: {ids}"
+            )
 
             uploaded_ids = g.api.image.upload_ids(
                 dataset_id=dataset_id,
@@ -210,7 +218,7 @@ def start_sampling():
             )
             g.api.annotation.upload_anns(
                 img_ids=[_.id for _ in uploaded_ids],
-                anns=[_.ann for _ in batched_samples],
+                anns=anns,
             )
 
             sly.logger.info(f"Uploaded batch of {len(batched_samples)} images.")
