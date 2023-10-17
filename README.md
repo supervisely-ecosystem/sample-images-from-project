@@ -44,13 +44,13 @@ The application can be launch from two context menus: Images Project and the Eco
 
 **Step 1:** Run the application.
 
-![search-in-ecosystem](search-in-ecosystem.png)
+![search-in-ecosystem](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852319-f9829567-8cfd-4f5f-a7f4-01123e98ec76.png)
 
 **Step 2:** Select the project from which you want to create a sample.
 
 **Step 3:** Press the `Run` button.
 
-![select-project](select-project.png)
+![select-project](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852333-909fd78d-7c14-4efb-8808-1f2579a7bacf.png)
 
 ### Launch from the Ecosystem
 
@@ -58,7 +58,7 @@ The application can be launch from two context menus: Images Project and the Eco
 
 **Step 2:** Change the `Input type` parameter to `Ecosystem`.
 
-![ecosystem](ecosystem.png)
+![ecosystem](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852366-3dcfde91-be10-4890-95a3-54967699875a.png)
 
 **Step 3:** Press the `Run` button.
 
@@ -68,17 +68,17 @@ The application can be launch from two context menus: Images Project and the Eco
 
 If you launched the application from the context menu of the images project, then the project will be selected automatically. Otherwise, you will need to select the project in the Section 1️⃣ and press the `Load data` button.
 
-![load-data](load-data.png)
+![load-data](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852419-8bfc7808-d242-4a26-bf63-782e0f7c12a1.png)
 
 When the project is selected, you're ready to go to the next step.
 
-![project-selected](project-selected.png)
+![project-selected](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852454-0c92710f-8b85-46d0-85b9-f100ee4be326.png)
 
 **Step 2️:** Specify the sample size.
 
 Sample size can be specified in two ways: by `Percentage` or by `Number of images`. Use the widgets to select the type of sample size and specify the value.
 
-![sample-size](sample-size.png)
+![sample-size](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852507-72e03b98-ce2a-40d1-b553-2f8ddc06a618.png)
 
 **Step 3️:** Select the sampling method.
 
@@ -88,7 +88,7 @@ As mentioned above, the application supports three sampling methods: random, str
 
 Select `Random` in the `Sampling method` widget and basically you're done. The application will randomly select the required number of images from the project and create a new project with them.
 
-![random](random.png)
+![random](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852528-c3e25d06-b9fe-49e6-a2a2-8c2c99e6b36b.png)
 
 ### Stratified method
 
@@ -96,7 +96,7 @@ Select `Random` in the `Sampling method` widget and basically you're done. The a
 
 Select `Stratified` in the `Sampling method` widget. You don't need to specify anything else, the application will create a sample with the same distribution of classes as in the original project.
 
-![stratified](stratified.png)
+![stratified](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852556-78fad0b9-172a-4912-b3fb-ac5073ab78da.png)
 
 ### Custom method
 
@@ -119,13 +119,13 @@ In `distribution` you can find a list of classes in the original project with th
 
 Keep in mind that if the sum of all values in `distribution` will not be equal to 100, the results may be slightly different from what you expect.
 
-![custom](custom.png)
+![custom](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852587-e14840a4-9b7f-4e5a-9ca5-7d9b0fae84e7.png)
 
 **Step 4️:** Press the `Save settings` button.
 
 After the settings are saved, you can go to the final step. If you selected `Stratified` or `Custom` methods you will also see the `Approximate sample distribution` table. It shows the approximate number of images for each class in the sample. 
 
-![approximate-sample-distribution](approximate-sample-distribution.png)
+![approximate-sample-distribution](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852616-705896df-cc75-4025-a60e-b0cfce078ab5.png)
 
 ℹ️ The actual number of images in the sample may differ from the values in the table for the following reasons:
 
@@ -142,7 +142,7 @@ Now press the `Start sampling` button and wait for the application to finish. Yo
 
 After the application finishes, you will see the result project widget, which you can use to open the project.
 
-![result-project](result-project.png)
+![result-project](https://github-production-user-asset-6210df.s3.amazonaws.com/118521851/275852661-036d1373-7b67-4d58-9b41-e23c31636894.pngg)
 
 ## Acknowledgement
 
