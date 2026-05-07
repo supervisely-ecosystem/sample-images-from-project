@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "name": "Sample images from project",
   "description": "Sample images from project with different methods",
-  "docker_image": "supervisely/base-py-sdk:6.73.564",
+  "docker_image": "supervisely/base-py-sdk-hardened:6.73.564",
   "categories": [
     "images",
     "labeling"
