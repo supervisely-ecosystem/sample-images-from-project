@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "name": "Sample images from project",
   "description": "Sample images from project with different methods",
-  "docker_image": "supervisely/base-py-sdk:6.73.93",
+  "docker_image": "supervisely/base-py-sdk:6.74.36",
   "categories": [
     "images",
     "labeling"
@@ -20,5 +20,5 @@
       "ecosystem"
     ]
   },
-  "min_instance_version": "6.9.22"
+  "min_instance_version": "6.17.25"
 }
